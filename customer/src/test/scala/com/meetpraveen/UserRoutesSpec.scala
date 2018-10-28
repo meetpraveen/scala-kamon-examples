@@ -11,10 +11,11 @@ import org.scalatest.{ Matchers, WordSpec }
 import com.meetpraveen.actor.CustomerRegistryActor
 import com.meetpraveen.model.Customer
 import java.util.UUID
+import com.meetpraveen.route.CustomerRoutes
 
 //#set-up
 class customerRoutesSpec extends WordSpec with Matchers with ScalaFutures with ScalatestRouteTest
-    with CustomerRoutes {
+    with CustomerRoutes with LogContext {
   //#test-top
 
   // Here we need to implement all the abstract members of customerRoutes.
