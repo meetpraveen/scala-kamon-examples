@@ -16,7 +16,6 @@ object EmbeddedCassandra {
 
   def init() = {
     EmbeddedCassandraServerHelper.startEmbeddedCassandra(EmbeddedCassandraServerHelper.DEFAULT_CASSANDRA_YML_FILE, 3 * 60000L)
-    Thread.sleep(10 * 1000)
     loadSchema(session)
   }
 

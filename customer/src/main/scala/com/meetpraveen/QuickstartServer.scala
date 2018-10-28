@@ -5,19 +5,15 @@ import scala.concurrent.{ Await, ExecutionContext, Future }
 import scala.concurrent.duration.Duration
 import scala.util.{ Failure, Success }
 
+import com.meetpraveen.actor.CustomerRegistryActor
+import com.meetpraveen.model.Constants.cassandraUrl
+import com.meetpraveen.persistency.EmbeddedCassandra
+
 import akka.actor.{ ActorRef, ActorSystem }
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.server.Directives.handleExceptions
 import akka.stream.ActorMaterializer
-import com.meetpraveen.actor.CustomerRegistryActor
-import org.cassandraunit.utils.EmbeddedCassandraServerHelper
-
-import scala.util.Properties.envOrElse
-import com.meetpraveen.persistency.EmbeddedCassandra
-import com.meetpraveen.model.Constants._
-import org.slf4j.Logger
-import org.apache.commons.logging.Log
-import java.util.logging.Logger
 
 //#main-class
 object QuickstartServer extends App with CustomerRoutes {
@@ -38,7 +34,7 @@ object QuickstartServer extends App with CustomerRoutes {
 
   //#main-class
   // from the customerRoutes trait
-  lazy val routes: Route = customerRoutes
+  lazy val routes: Route = handleExceptions(exceptionHandler) { customerRoutes }
   //#main-class
 
   //#http-server

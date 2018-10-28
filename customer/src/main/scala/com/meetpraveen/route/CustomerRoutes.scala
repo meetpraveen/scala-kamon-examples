@@ -40,7 +40,7 @@ trait CustomerRoutes extends JsonSupport {
   implicit val exceptionHandler = ExceptionHandler {
     case ex: Throwable => {
       ex.printStackTrace
-      complete(StatusCodes.BadRequest)
+      complete(StatusCodes.BadRequest, ex.getMessage)
     }
   }
   //#all-routes
