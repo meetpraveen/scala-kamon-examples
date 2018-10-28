@@ -18,7 +18,7 @@ import com.meetpraveen.route.CustomerRoutes
 
 //#main-class
 object QuickstartServer extends App with CustomerRoutes with LogContext {
-  
+
   // set up ActorSystem and other dependencies here
   //#main-class
   //#server-bootstrapping

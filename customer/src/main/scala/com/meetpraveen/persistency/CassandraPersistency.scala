@@ -17,7 +17,7 @@ object CqlUtils extends LogContext {
   def execute(statement: Future[PreparedStatement], params: Any*)(implicit executionContext: ExecutionContext, session: Session): Future[ResultSet] = {
     statement.map { x =>
       val para = params.map(identity)
-      if (!para.isEmpty) x.bind(para.map(_.asInstanceOf[Object]):_*) else x.bind()
+      if (!para.isEmpty) x.bind(para.map(_.asInstanceOf[Object]): _*) else x.bind()
     }
       .flatMap(session.executeAsync(_))
   }

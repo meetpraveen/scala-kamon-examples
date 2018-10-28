@@ -8,8 +8,7 @@ object LogUtils {
   // Support for logging interpolated strings
   implicit class LogEnhancer[T](val logStr: StringContext) extends AnyVal {
     def log(args: String*)(implicit log: Logger) = {
-      logStr.raw(args: _*)
-      log.debug(logStr.raw(args: _*))
+      log.warn(logStr.raw(args: _*))
     }
   }
 }
