@@ -4,16 +4,15 @@ import java.util.UUID
 
 import scala.concurrent.{ ExecutionContext, Future, Promise }
 import scala.language.implicitConversions
-import scala.util.Try
 
 import com.datastax.driver.core.{ Cluster, PreparedStatement, ResultSet, Session, SimpleStatement }
 import com.google.common.util.concurrent.{ FutureCallback, Futures, ListenableFuture }
+import com.meetpraveen.LogContext
+import com.meetpraveen.LogUtils.LogEnhancer
 import com.meetpraveen.model.{ Customer, Customers }
 import com.meetpraveen.model.Constants.{ cassandraPort, cassandraUrl }
-import scala.util.Success
-import scala.util.Failure
 
-object CqlUtils {
+object CqlUtils extends LogContext {
 
   def execute(statement: Future[PreparedStatement], params: Any*)(implicit executionContext: ExecutionContext, session: Session): Future[ResultSet] = {
     statement.map { x =>
@@ -46,10 +45,12 @@ object CqlUtils {
     val promise = Promise[T]()
     Futures.addCallback(listenableFuture, new FutureCallback[T] {
       def onFailure(error: Throwable): Unit = {
+        log"ERROR: Cassandra operation failed - ${error.getMessage}"
         promise.failure(error)
         ()
       }
       def onSuccess(result: T): Unit = {
+        log"SUCCESS: Cassandra operation successfull - ${result.toString().take(20)}..."
         promise.success(result)
         ()
       }
