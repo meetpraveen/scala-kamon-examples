@@ -1,4 +1,4 @@
-package com.meetpraveen
+package com.meetpraveen.route
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -16,20 +16,19 @@ import akka.http.scaladsl.server.directives.PathDirectives.path
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import akka.pattern.ask
 import akka.util.Timeout
-import scala.util.Success
-import scala.util.Failure
+import scala.util.{ Try, Success, Failure }
 import akka.http.scaladsl.server.ExceptionHandler
-import scala.util.Try
 import scala.concurrent.ExecutionContext
+import com.meetpraveen.LogContext
+import com.meetpraveen.LogUtils._
 
 //#customer-routes-class
 trait CustomerRoutes extends JsonSupport {
+  self: LogContext =>
   //#customer-routes-class
 
   // we leave these abstract, since they will be provided by the App
   implicit def system: ActorSystem
-
-  lazy val log = Logging(system, classOf[CustomerRoutes])
 
   // other dependencies that customerRoutes use
   def customerRegistryActor: ActorRef
@@ -48,54 +47,48 @@ trait CustomerRoutes extends JsonSupport {
   //#customers-get-delete
   lazy val customerRoutes: Route =
     pathPrefix("customers") {
-      concat(
-        //#customers-get-delete
-        pathEnd {
-          concat(
-            get {
-              val customers = (customerRegistryActor ? GetCustomers).mapTo[Try[Customers]]
-              complete(customers)
-            },
-            post {
-              entity(as[Customer]) { customer =>
-                val customerCreated =
-                  (customerRegistryActor ? CreateCustomer(customer)).mapTo[Try[Customer]]
-                onSuccess(customerCreated) { performed =>
-                  log.info("Created customer [{}]", performed)
-                  complete(StatusCodes.Created, performed)
-                }
+      //#customers-get-delete
+      pathEndOrSingleSlash {
+        get {
+          val customers = (customerRegistryActor ? GetCustomers).mapTo[Try[Customers]]
+          complete(customers)
+        } ~
+          post {
+            entity(as[Customer]) { customer =>
+              val customerCreated =
+                (customerRegistryActor ? CreateCustomer(customer)).mapTo[Try[Customer]]
+              onSuccess(customerCreated) { performed =>
+                log.info("Created customer [{}]", performed)
+                complete(StatusCodes.Created, performed)
               }
-            })
-        },
+            }
+          }
+      } ~
         //#customers-get-post
         //#customers-get-delete
         path(JavaUUID) { id =>
-          concat(
-            get {
-              //#retrieve-customer-info
-              val maybecustomer: Future[Try[Option[Customer]]] =
-                (customerRegistryActor ? GetCustomer(id)).mapTo[Try[Option[Customer]]]
-              implicit val ec: ExecutionContext = system.dispatcher
-              val flat = maybecustomer.collect[Option[Customer]] {
-                case Success(x) => x
-                case Failure(ex) => None
-              }
+          get {
+            //#retrieve-customer-info
+            val maybecustomer =
+              (customerRegistryActor ? GetCustomer(id)).mapTo[Try[Option[Customer]]]
+            onSuccess(maybecustomer) { customer =>
               rejectEmptyResponse {
                 complete(maybecustomer)
               }
-              //#retrieve-customer-info
-            },
+            }
+            //#retrieve-customer-info
+          } ~
             delete {
               //#customers-delete-logic
-              val customerDeleted: Future[Unit] =
-                (customerRegistryActor ? DeleteCustomer(id)).mapTo[Unit]
-              onComplete(customerDeleted) { performed =>
-                log.info("Deleted customer [{}]", id)
-                complete(StatusCodes.OK, "")
+              val customerDeleted =
+                (customerRegistryActor ? DeleteCustomer(id)).mapTo[Try[Unit]]
+              onSuccess(customerDeleted) { performed =>
+                log"Deleted customer [${id.toString}]"
+                complete(StatusCodes.OK, "Deleted")
               }
               //#customers-delete-logic
-            })
-        })
+            }
+        }
       //#customers-get-delete
     }
   //#all-routes

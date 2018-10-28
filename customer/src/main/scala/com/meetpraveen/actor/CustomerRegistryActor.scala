@@ -11,6 +11,8 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
 import scala.util.Try
+import scala.util.Success
+import scala.util.Failure
 
 object CustomerRegistryActor {
   final case class InitCassandraSession(cassandraUrl: String, cassandraPort: String)
@@ -29,26 +31,25 @@ class CustomerRegistryActor extends Actor with ActorLogging with CassandraPersis
 
   implicit val ex: ExecutionContext = context.dispatcher
   def receive: Receive = {
-    case InitCassandraSession(url, port) => sender()
     case GetCustomers => {
       val sndr = sender()
-      sndr ! Try(Await.result(getCustomers(), 10 seconds))
+      getCustomers().onComplete(sndr ! _)
     }
     case CreateCustomer(customer) => {
       val sndr = sender()
-      sndr ! Try(Await.result(upsertCustomer(customer), 10 seconds))
+      upsertCustomer(customer).onComplete(sndr ! _)
     }
     case UpdateCustomer(customer) => {
       val sndr = sender()
-      sndr ! Try(Await.result(upsertCustomer(customer), 10 seconds))
+      upsertCustomer(customer).onComplete(sndr ! _)
     }
     case GetCustomer(id) => {
       val sndr = sender()
-      sndr ! Try(Await.result(getCustomer(id), 10 seconds))
+      getCustomer(id).onComplete(sndr ! _)
     }
     case DeleteCustomer(id) =>
       val sndr = sender()
-      sndr ! Try(Await.result(deleteCustomer(id), 10 seconds))
+      deleteCustomer(id).onComplete(sndr ! _)
   }
 }
 //#customer-registry-actor

@@ -16,5 +16,6 @@ object LogUtils {
 
 // Simple trait for mixing in logger
 trait LogContext {
+  import com.meetpraveen.LogUtils._
   implicit val log = LoggerFactory.getLogger(this.getClass)
 }

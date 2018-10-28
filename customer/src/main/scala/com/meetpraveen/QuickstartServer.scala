@@ -14,10 +14,11 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.Directives.handleExceptions
 import akka.stream.ActorMaterializer
+import com.meetpraveen.route.CustomerRoutes
 
 //#main-class
-object QuickstartServer extends App with CustomerRoutes {
-
+object QuickstartServer extends App with CustomerRoutes with LogContext {
+  
   // set up ActorSystem and other dependencies here
   //#main-class
   //#server-bootstrapping
