@@ -7,14 +7,16 @@ import akka.http.scaladsl.marshalling.Marshal
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{ Matchers, WordSpec }
+import org.scalatest.{Matchers, WordSpec}
 import com.meetpraveen.actor.CustomerRegistryActor
 import com.meetpraveen.model.Customer
 import java.util.UUID
+
+import com.meetpraveen.log.LogContext
 import com.meetpraveen.route.CustomerRoutes
 
 //#set-up
-class customerRoutesSpec extends WordSpec with Matchers with ScalaFutures with ScalatestRouteTest
+class CustomerRoutesSpec extends WordSpec with Matchers with ScalaFutures with ScalatestRouteTest
     with CustomerRoutes with LogContext {
   //#test-top
 

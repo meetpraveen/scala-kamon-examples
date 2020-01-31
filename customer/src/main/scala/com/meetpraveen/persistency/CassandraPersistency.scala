@@ -2,15 +2,15 @@ package com.meetpraveen.persistency
 
 import java.util.UUID
 
-import scala.concurrent.{ ExecutionContext, Future, Promise }
-import scala.language.implicitConversions
+import com.datastax.driver.core._
+import com.google.common.util.concurrent.{FutureCallback, Futures, ListenableFuture}
+import com.meetpraveen.log.LogContext
+import com.meetpraveen.log.LogUtils._
+import com.meetpraveen.model.Constants.{cassandraPort, cassandraUrl}
+import com.meetpraveen.model.{Customer, Customers}
 
-import com.datastax.driver.core.{ Cluster, PreparedStatement, ResultSet, Session, SimpleStatement }
-import com.google.common.util.concurrent.{ FutureCallback, Futures, ListenableFuture }
-import com.meetpraveen.LogContext
-import com.meetpraveen.LogUtils.LogEnhancer
-import com.meetpraveen.model.{ Customer, Customers }
-import com.meetpraveen.model.Constants.{ cassandraPort, cassandraUrl }
+import scala.concurrent.{ExecutionContext, Future, Promise}
+import scala.language.implicitConversions
 
 object CqlUtils extends LogContext {
 
@@ -45,12 +45,12 @@ object CqlUtils extends LogContext {
     val promise = Promise[T]()
     Futures.addCallback(listenableFuture, new FutureCallback[T] {
       def onFailure(error: Throwable): Unit = {
-        log"ERROR: Cassandra operation failed - ${error.getMessage}"
+        //error"ERROR: Cassandra operation failed - ${error.getMessage}"
         promise.failure(error)
         ()
       }
       def onSuccess(result: T): Unit = {
-        log"SUCCESS: Cassandra operation successfull - ${result.toString().take(20)}..."
+        //error"SUCCESS: Cassandra operation successfull - ${result.toString().take(20)}..."
         promise.success(result)
         ()
       }
@@ -75,30 +75,31 @@ trait Persistency {
 
 trait CassandraPersistency extends Persistency {
   import com.meetpraveen.persistency.CqlUtils._
+
   import scala.collection.JavaConverters._
   import scala.concurrent.ExecutionContext.Implicits.global
 
   override def getCustomers(): Future[Customers] = {
     val query = cql"SELECT * FROM myks.customer"
-    val resultSet = execute(query).map(_.asScala.map(row => Customer(UUID.fromString(row.getString("id")), row.getString("name"), row.getInt("age"), row.getString("countryOfResidence"))))
+    val resultSet = execute(query).map(_.asScala.map(row => Customer(UUID.fromString(row.getString("id")), row.getString("name"), row.getInt("age"), row.getString("countryOfResidence")))).withLogging("DB: GetCutomers")
     val resultList = resultSet.map(_.toList)
     resultList.transform(Customers(_), identity)
   }
 
   override def getCustomer(id: UUID): Future[Option[Customer]] = {
     val query = cql"SELECT * FROM myks.customer WHERE id = ?"
-    val resultset = execute(query, id.toString).map(_.asScala.toStream.take(1).map(row => Customer(UUID.fromString(row.getString("id")), row.getString("name"), row.getInt("age"), row.getString("countryOfResidence"))))
+    val resultset = execute(query, id.toString).map(_.asScala.toStream.take(1).map(row => Customer(UUID.fromString(row.getString("id")), row.getString("name"), row.getInt("age"), row.getString("countryOfResidence")))).withLogging(s"DB: GetCutomers $id")
     resultset.transform(stream => stream.take(1).toList.headOption, identity)
   }
 
   override def upsertCustomer(customer: Customer): Future[Customer] = {
     val query = cql"INSERT INTO myks.customer(id, name, age, countryOfResidence) VALUES(?,?,?,?)"
-    val rs = execute(query, customer.id.toString, customer.name.toString, customer.age, customer.countryOfResidence.toString)
+    val rs = execute(query, customer.id.toString, customer.name.toString, customer.age, customer.countryOfResidence.toString).withLogging(s"DB: UpsertCutomers $customer")
     rs.transform(_ => customer, identity)
   }
 
   override def deleteCustomer(id: UUID): Future[Unit] = {
     val query = cql"DELETE from myks.customer WHERE id = ?"
-    execute(query, id.toString).transform(_ => (), identity)
+    execute(query, id.toString).transform(_ => (), identity).withLogging(s"DB: DeleteCutomers $id")
   }
 }

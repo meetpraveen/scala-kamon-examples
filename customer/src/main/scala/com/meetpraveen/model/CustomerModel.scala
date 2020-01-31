@@ -1,11 +1,10 @@
 package com.meetpraveen.model
 
-import com.meetpraveen.actor.CustomerRegistryActor.ActionPerformed
-import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import java.util.UUID
-import spray.json.JsValue
-import spray.json.RootJsonFormat
-import spray.json.JsString
+
+import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
+import com.meetpraveen.actor.CustomerRegistryActor.ActionPerformed
+import spray.json.{JsString, JsValue, RootJsonFormat}
 
 //#customer-case-classes
 trait Identifiable {

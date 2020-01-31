@@ -1,18 +1,16 @@
 package com.meetpraveen.actor
 
 //#customer-registry-actor
-import akka.actor.{ Actor, ActorLogging, Props }
-import akka.actor.actorRef2Scala
-import com.meetpraveen.model.Customer
-import com.meetpraveen.model.Customers
-import com.meetpraveen.persistency.CassandraPersistency
 import java.util.UUID
+
+import akka.MDCAwareActor
+import akka.actor.{Props, actorRef2Scala}
+import com.meetpraveen.log.LogUtils._
+import com.meetpraveen.mdcaware.MDCPropagatingExecutionContextWrapper
+import com.meetpraveen.model.Customer
+import com.meetpraveen.persistency.CassandraPersistency
+
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Await
-import scala.concurrent.duration.DurationInt
-import scala.util.Try
-import scala.util.Success
-import scala.util.Failure
 
 object CustomerRegistryActor {
   final case class InitCassandraSession(cassandraUrl: String, cassandraPort: String)
@@ -26,29 +24,34 @@ object CustomerRegistryActor {
   def props: Props = Props[CustomerRegistryActor]
 }
 
-class CustomerRegistryActor extends Actor with ActorLogging with CassandraPersistency {
+class CustomerRegistryActor extends MDCAwareActor with CassandraPersistency {
   import CustomerRegistryActor._
 
-  implicit val ex: ExecutionContext = context.dispatcher
+  implicit val ex: ExecutionContext = MDCPropagatingExecutionContextWrapper(context.dispatcher)
   def receive: Receive = {
-    case GetCustomers => {
+    case msg @ GetCustomers => {
       val sndr = sender()
+      debug"Actor: CustomerRegistryActor Received $msg"
       getCustomers().onComplete(sndr ! _)
     }
-    case CreateCustomer(customer) => {
+    case msg @ CreateCustomer(customer) => {
       val sndr = sender()
+      debug"Actor: CustomerRegistryActor Received $msg"
       upsertCustomer(customer).onComplete(sndr ! _)
     }
-    case UpdateCustomer(customer) => {
+    case msg @ UpdateCustomer(customer) => {
       val sndr = sender()
+      debug"Actor: CustomerRegistryActor Received $msg"
       upsertCustomer(customer).onComplete(sndr ! _)
     }
-    case GetCustomer(id) => {
+    case msg @ GetCustomer(id) => {
       val sndr = sender()
+      debug"Actor: CustomerRegistryActor Received $msg"
       getCustomer(id).onComplete(sndr ! _)
     }
-    case DeleteCustomer(id) =>
+    case msg @ DeleteCustomer(id) =>
       val sndr = sender()
+      debug"Actor: CustomerRegistryActor Received $msg"
       deleteCustomer(id).onComplete(sndr ! _)
   }
 }

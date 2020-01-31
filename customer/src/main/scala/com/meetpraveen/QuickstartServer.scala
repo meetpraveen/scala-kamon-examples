@@ -1,30 +1,32 @@
 package com.meetpraveen
 
 //#quick-start-server
-import scala.concurrent.{ Await, ExecutionContext, Future }
-import scala.concurrent.duration.Duration
-import scala.util.{ Failure, Success }
-
+import akka.actor.{ActorRef, ActorSystem}
+import akka.http.scaladsl.Http
+import akka.http.scaladsl.server.Directives.handleExceptions
+import akka.http.scaladsl.server.Route
+import akka.stream.ActorMaterializer
 import com.meetpraveen.actor.CustomerRegistryActor
+import com.meetpraveen.directives.TrackingDirectives
+import com.meetpraveen.log.LogContext
+import com.meetpraveen.mdcaware.MDCPropagatingExecutionContextWrapper
 import com.meetpraveen.model.Constants.cassandraUrl
 import com.meetpraveen.persistency.EmbeddedCassandra
-
-import akka.actor.{ ActorRef, ActorSystem }
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.server.Route
-import akka.http.scaladsl.server.Directives.handleExceptions
-import akka.stream.ActorMaterializer
 import com.meetpraveen.route.CustomerRoutes
 
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.util.{Failure, Success}
+
 //#main-class
-object QuickstartServer extends App with CustomerRoutes with LogContext {
+object QuickstartServer extends App with CustomerRoutes with TrackingDirectives with LogContext {
 
   // set up ActorSystem and other dependencies here
   //#main-class
   //#server-bootstrapping
   implicit val system: ActorSystem = ActorSystem("helloAkkaHttpServer")
   implicit val materializer: ActorMaterializer = ActorMaterializer()
-  implicit val executionContext: ExecutionContext = system.dispatcher
+  implicit val executionContext: ExecutionContext = MDCPropagatingExecutionContextWrapper(system.dispatcher)
   //#server-bootstrapping
 
   // Starting up embedded cassandra

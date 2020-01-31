@@ -9,10 +9,13 @@ lazy val root = (project in file(".")).
     )),
     name := "customer",
     libraryDependencies ++= Seq(
+      "io.kamon" %% "kamon-logback" % "2.0.2",
       "com.typesafe.akka"       %% "akka-http"            % akkaHttpVersion,
       "com.typesafe.akka"       %% "akka-http-spray-json" % akkaHttpVersion,
       "com.typesafe.akka"       %% "akka-http-xml"        % akkaHttpVersion,
       "com.typesafe.akka"       %% "akka-stream"          % akkaVersion,
+      "com.typesafe.scala-logging" %% "scala-logging"     % "3.9.2",
+      "ch.qos.logback"          % "logback-classic"       % "1.0.9",
 
       "com.typesafe.akka"       %% "akka-http-testkit"    % akkaHttpVersion % Test,
       "com.typesafe.akka"       %% "akka-testkit"         % akkaVersion     % Test,
