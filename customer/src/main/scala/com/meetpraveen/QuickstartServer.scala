@@ -1,7 +1,7 @@
 package com.meetpraveen
 
 //#quick-start-server
-import akka.actor.{ActorRef, ActorSystem}
+import akka.actor.{ ActorRef, ActorSystem }
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Directives.handleExceptions
 import akka.http.scaladsl.server.Route
@@ -14,19 +14,21 @@ import com.meetpraveen.model.Constants.cassandraUrl
 import com.meetpraveen.persistency.EmbeddedCassandra
 import com.meetpraveen.route.CustomerRoutes
 
+import kamon.Kamon
+
 import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, ExecutionContext, Future}
-import scala.util.{Failure, Success}
+import scala.concurrent.{ Await, ExecutionContext, Future }
+import scala.util.{ Failure, Success }
 
 //#main-class
 object QuickstartServer extends App with CustomerRoutes with TrackingDirectives with LogContext {
-
+  Kamon.init()
   // set up ActorSystem and other dependencies here
   //#main-class
   //#server-bootstrapping
   implicit val system: ActorSystem = ActorSystem("helloAkkaHttpServer")
   implicit val materializer: ActorMaterializer = ActorMaterializer()
-  implicit val executionContext: ExecutionContext = MDCPropagatingExecutionContextWrapper(system.dispatcher)
+  implicit val executionContext: ExecutionContext = system.dispatcher//MDCPropagatingExecutionContextWrapper(system.dispatcher)
   //#server-bootstrapping
 
   // Starting up embedded cassandra

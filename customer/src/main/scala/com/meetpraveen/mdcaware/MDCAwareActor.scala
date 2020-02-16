@@ -1,6 +1,6 @@
 package akka
 
-import akka.actor.{Actor, ActorRef}
+import akka.actor.{ Actor, ActorRef }
 import akka.util.Timeout
 import com.meetpraveen.log.LogContext
 import org.slf4j.MDC
@@ -12,23 +12,23 @@ trait MDCAwareActor extends Actor with LogContext {
 
   // This is why this needs to be in package akka.actor
   override protected[akka] def aroundReceive(receive: Actor.Receive, msg: Any): Unit = {
-    val orig = MDC.getCopyOfContextMap
+//    val orig = MDC.getCopyOfContextMap
     try {
       msg match {
         case MdcMsg(mdc, origMsg) =>
-          if (mdc != null)
-            MDC.setContextMap(mdc)
-          else
-            MDC.clear()
+//          if (mdc != null)
+//            MDC.setContextMap(mdc)
+//          else
+//            MDC.clear()
           super.aroundReceive(receive, origMsg)
         case _ =>
           super.aroundReceive(receive, msg)
       }
     } finally {
-      if (orig != null)
-        MDC.setContextMap(orig)
-      else
-        MDC.clear()
+//      if (orig != null)
+//        MDC.setContextMap(orig)
+//      else
+//        MDC.clear()
     }
   }
 }

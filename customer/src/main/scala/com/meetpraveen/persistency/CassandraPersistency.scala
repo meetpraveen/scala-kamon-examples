@@ -3,13 +3,13 @@ package com.meetpraveen.persistency
 import java.util.UUID
 
 import com.datastax.driver.core._
-import com.google.common.util.concurrent.{FutureCallback, Futures, ListenableFuture}
+import com.google.common.util.concurrent.{ FutureCallback, Futures, ListenableFuture }
 import com.meetpraveen.log.LogContext
 import com.meetpraveen.log.LogUtils._
-import com.meetpraveen.model.Constants.{cassandraPort, cassandraUrl}
-import com.meetpraveen.model.{Customer, Customers}
+import com.meetpraveen.model.Constants.{ cassandraPort, cassandraUrl }
+import com.meetpraveen.model.{ Customer, Customers }
 
-import scala.concurrent.{ExecutionContext, Future, Promise}
+import scala.concurrent.{ ExecutionContext, Future, Promise }
 import scala.language.implicitConversions
 
 object CqlUtils extends LogContext {

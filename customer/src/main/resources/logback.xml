@@ -1,22 +1,29 @@
 <configuration>
+    <conversionRule conversionWord="traceId" converterClass="kamon.instrumentation.logback.tools.TraceIDConverter" />
+    <conversionRule conversionWord="contextEntry" converterClass="kamon.instrumentation.logback.tools.ContextEntryConverter" />
+
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} Correlation = %X{correlationId} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} Poison - %X{poison}, CorrId = %X{corrId}, traceId = %X{traceId}, mdc = [%mdc], kamonCtx = [%contextEntry{mySpecialContext}] - %msg%n</pattern>
         </encoder>
+    </appender>
+
+    <appender name="ASYNCSTDOUT" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="STDOUT" />
     </appender>
 
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
         <file>target/customer.log</file>
         <append>true</append>
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} Correlation = %X{correlationId} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} Poison - %X{poison}, Correlation = %X{corrId}, mdc = [%mdc] - %msg%n</pattern>
         </encoder>
     </appender>
 
     <logger name="com.meetpraveen" level="DEBUG" />
 
     <root level="ERROR">
-        <appender-ref ref="STDOUT" />
+        <appender-ref ref="ASYNCSTDOUT" />
         <appender-ref ref="FILE" />
     </root>
 </configuration>

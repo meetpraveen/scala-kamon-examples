@@ -9,16 +9,17 @@ import org.slf4j.MDC
 
 trait TrackingDirectives {
 
-  val CorrelationIdKey = "correlationId"
-  val `X-Correlation-Header` = "X-Correlation-Header"
+  val CorrelationIdKey = "corrId"
+  val `X-Correlation-Header` = "X-Corr-Header"
 
   def extractCorrelationId: Directive[Unit] = optionalHeaderValueByName(`X-Correlation-Header`).map { correlationId =>
     val corr = correlationId.getOrElse(UUID.randomUUID().toString)
-    MDC.put(CorrelationIdKey, correlationId.getOrElse(UUID.randomUUID().toString))
+    MDC.put(CorrelationIdKey, corr)
   }
 
-  def repondWithCorrelationHeader = mapResponseHeaders{ headers =>
-    val newHeaders = headers :+ RawHeader(`X-Correlation-Header`, MDC.get(CorrelationIdKey))
+  def repondWithCorrelationHeader = mapResponseHeaders { headers =>
+    val cor = Option(MDC.get(CorrelationIdKey)).getOrElse("bad")
+    val newHeaders = headers :+ RawHeader(`X-Correlation-Header`, cor)
     MDC.remove(CorrelationIdKey)
     newHeaders
   }

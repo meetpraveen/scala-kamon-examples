@@ -12,13 +12,17 @@ trait MDCPropagatingExecutionContext extends ExecutionContext {
     // Save the call-site MDC state
     val context = MDC.getCopyOfContextMap
 
+    if (context != null && context.containsKey("corrId")) {
+      println(s"Found corrId ${context.get("corrId")}")
+    }
+
     def execute(r: Runnable): Unit = self.execute(new Runnable {
       def run(): Unit = {
         // Save the existing execution-site MDC state
         val oldContext = MDC.getCopyOfContextMap
         try {
           // Set the call-site MDC state into the execution-site MDC
-          if (context != null )
+          if (context != null)
             MDC.setContextMap(context)
           else
             MDC.clear()

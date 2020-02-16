@@ -4,7 +4,7 @@ package com.meetpraveen.actor
 import java.util.UUID
 
 import akka.MDCAwareActor
-import akka.actor.{Props, actorRef2Scala}
+import akka.actor.{ Props, actorRef2Scala }
 import com.meetpraveen.log.LogUtils._
 import com.meetpraveen.mdcaware.MDCPropagatingExecutionContextWrapper
 import com.meetpraveen.model.Customer

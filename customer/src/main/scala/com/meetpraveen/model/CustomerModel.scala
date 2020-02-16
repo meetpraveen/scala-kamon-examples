@@ -4,7 +4,7 @@ import java.util.UUID
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import com.meetpraveen.actor.CustomerRegistryActor.ActionPerformed
-import spray.json.{JsString, JsValue, RootJsonFormat}
+import spray.json.{ JsString, JsValue, RootJsonFormat }
 
 //#customer-case-classes
 trait Identifiable {

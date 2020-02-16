@@ -1,15 +1,17 @@
-lazy val akkaHttpVersion = "10.1.4"
-lazy val akkaVersion    = "2.5.16"
+lazy val akkaHttpVersion = "10.1.9"
+lazy val akkaVersion    = "2.5.23"
 
-lazy val root = (project in file(".")).
-  settings(
+lazy val root = (project in file("."))
+  .enablePlugins(JavaAgent)
+  .settings(
     inThisBuild(List(
       organization    := "com.meetpraveen",
       scalaVersion    := "2.12.6"
     )),
     name := "customer",
     libraryDependencies ++= Seq(
-      "io.kamon" %% "kamon-logback" % "2.0.2",
+      "io.kamon" %% "kamon-bundle" % "2.0.5",
+      "io.kamon" %% "kamon-prometheus" % "2.0.1",
       "com.typesafe.akka"       %% "akka-http"            % akkaHttpVersion,
       "com.typesafe.akka"       %% "akka-http-spray-json" % akkaHttpVersion,
       "com.typesafe.akka"       %% "akka-http-xml"        % akkaHttpVersion,
@@ -26,5 +28,6 @@ lazy val root = (project in file(".")).
       //STEP: Embedded cassandra, we will be using it to run the test locally and to test it
       "org.cassandraunit"       % "cassandra-unit"       % "3.1.3.2",
       "com.lightbend.akka"      %% "akka-stream-alpakka-cassandra" % "1.0-M1"
-    )
+    ),
+    javaAgents += "org.aspectj" % "aspectjweaver" % "1.9.5"
   )
