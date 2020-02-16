@@ -3,10 +3,10 @@ package com.meetpraveen.log
 import kamon.Kamon
 import kamon.context.Context
 import kamon.tag.TagSet
-import org.slf4j.{Logger, LoggerFactory}
+import org.slf4j.{ Logger, LoggerFactory }
 
 import scala.concurrent.Future
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
 object LogUtils {
   type Entries[T] = Map[Context.Key[T], T]
@@ -89,7 +89,6 @@ object LogUtils {
 
   def logWithEntries(entries: Entries[String], message: String)(implicit log: Logger): Unit = logWithEntries(log.debug, entries, message)
   def logWithEntriesAndThrowable(entries: Entries[String], message: String, ex: Throwable)(implicit log: Logger): Unit = logWithEntries(log.debug, entries, message, ex)
-
 
   def logWithEntries(logFunction: String => Unit, entries: Entries[String], message: String)(implicit log: Logger): Unit = {
     val context = entries.foldLeft(Kamon.currentContext())((agg, entry) => agg.withEntry(entry._1, entry._2))

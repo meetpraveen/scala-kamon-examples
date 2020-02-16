@@ -1,0 +1,40 @@
+version: '3'
+services:
+  cassandra:
+    container_name: "cassandra"
+    image: cassandra:3.11
+    ports:
+      - "9042:9042"
+      - "7000:7000"
+      - "7099:7099"
+    environment:
+      - "MAX_HEAP_SIZE=256M"
+      - "HEAP_NEWSIZE=128M"
+    restart: always
+    volumes:
+      - ./cassandra_data:/var/lib/cassandra
+  zookeeper:
+    image: confluentinc/cp-zookeeper:5.2.2
+    ports:
+      - 2181:2181
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    extra_hosts:
+      - "localhost: 127.0.0.1"
+
+  kafka:
+    image: confluentinc/cp-kafka:5.2.2
+    hostname: kafka-host
+    ports:
+      - 9092:9092
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    extra_hosts:
+      - "localhost: 127.0.0.1"

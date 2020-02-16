@@ -1,9 +1,9 @@
 package com.meetpraveen.log
 
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.{ Config, ConfigFactory }
 import kamon.ClassLoading
-import kamon.context.HttpPropagation.{HeaderReader, HeaderWriter}
-import kamon.context.{Context, Propagation}
+import kamon.context.HttpPropagation.{ HeaderReader, HeaderWriter }
+import kamon.context.{ Context, Propagation }
 
 import scala.util.Try
 

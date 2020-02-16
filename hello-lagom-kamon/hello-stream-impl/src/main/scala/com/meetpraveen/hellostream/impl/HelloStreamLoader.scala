@@ -1,19 +1,18 @@
 package com.meetpraveen.hellostream.impl
 
-import com.lightbend.lagom.scaladsl.api.ServiceLocator.NoServiceLocator
-import com.lightbend.lagom.scaladsl.server._
+import com.lightbend.lagom.scaladsl.akka.discovery.AkkaDiscoveryComponents
 import com.lightbend.lagom.scaladsl.devmode.LagomDevModeComponents
-import play.api.libs.ws.ahc.AhcWSComponents
-import com.meetpraveen.hellostream.api.HelloStreamService
+import com.lightbend.lagom.scaladsl.server._
 import com.meetpraveen.hello.api.HelloService
+import com.meetpraveen.hellostream.api.HelloStreamService
 import com.softwaremill.macwire._
+import kamon.Kamon
+import play.api.libs.ws.ahc.AhcWSComponents
 
 class HelloStreamLoader extends LagomApplicationLoader {
-
+  Kamon.init()
   override def load(context: LagomApplicationContext): LagomApplication =
-    new HelloStreamApplication(context) {
-      override def serviceLocator: NoServiceLocator.type = NoServiceLocator
-    }
+    new HelloStreamApplication(context) with AkkaDiscoveryComponents
 
   override def loadDevMode(context: LagomApplicationContext): LagomApplication =
     new HelloStreamApplication(context) with LagomDevModeComponents

@@ -1,4 +1,4 @@
-apiVersion: "api/v1"
+apiVersion: "extensions/v1beta1"
 kind: Ingress
 metadata:
   name: hello
@@ -9,12 +9,28 @@ spec:
           - path: "/api/hello"
             backend:
               serviceName: hello
-              servicePort: 10000
+              servicePort: 80
           - path: "/direct-stream"
             backend:
               serviceName: "hello-stream"
-              servicePort: 10000
+              servicePort: 80
           - path: "/auto-stream"
             backend:
               serviceName: "hello-stream"
-              servicePort: 10000
+              servicePort: 80
+          - path: "/kamon/hello"
+            backend:
+              serviceName: hello
+              servicePort: 5266
+          - path: "/prom/hello"
+            backend:
+              serviceName: hello
+              servicePort: 9095
+          - path: "/kamon/hello-stream"
+            backend:
+              serviceName: hello-stream
+              servicePort: 5266
+          - path: "/prom/hello-stream"
+            backend:
+              serviceName: "hello-stream"
+              servicePort: 9095

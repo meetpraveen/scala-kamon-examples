@@ -1,9 +1,10 @@
 package com.meetpraveen.metrics
 
 import kamon.metric.MeasurementUnit
-import kamon.tag.{Tag, TagSet}
+import kamon.tag.{ Tag, TagSet }
 
-/** Base monitoring trait, exposes basic measurement functions
+/**
+ * Base monitoring trait, exposes basic measurement functions
  * @author psinha
  */
 trait Monitoring {
@@ -12,7 +13,8 @@ trait Monitoring {
   def counter(name: String, ops: CounterOps, unit: MeasurementUnit, tags: Map[String, Any] = Map.empty)
 }
 
-/** Companion Oobject
+/**
+ * Companion Oobject
  */
 object Monitoring {
   object Constants {

@@ -1,6 +1,7 @@
 package com.meetpraveen.hello.impl
 
 import akka.cluster.sharding.typed.scaladsl.Entity
+import com.lightbend.lagom.scaladsl.akka.discovery.AkkaDiscoveryComponents
 import com.lightbend.lagom.scaladsl.api.ServiceLocator
 import com.lightbend.lagom.scaladsl.api.ServiceLocator.NoServiceLocator
 import com.lightbend.lagom.scaladsl.broker.kafka.LagomKafkaComponents
@@ -10,20 +11,17 @@ import com.lightbend.lagom.scaladsl.playjson.JsonSerializerRegistry
 import com.lightbend.lagom.scaladsl.server._
 import com.meetpraveen.hello.api.HelloService
 import com.softwaremill.macwire._
-import javax.inject.{Provider, Singleton}
 import kamon.Kamon
 import play.api.libs.ws.ahc.AhcWSComponents
 
 class HelloLoader extends LagomApplicationLoader {
-
+  //Initialize kamon
+  Kamon.init()
   override def load(context: LagomApplicationContext): LagomApplication = {
-    new HelloApplication(context) {
-      override def serviceLocator: ServiceLocator = NoServiceLocator
-    }
+    new HelloApplication(context) with AkkaDiscoveryComponents
   }
 
   override def loadDevMode(context: LagomApplicationContext): LagomApplication = {
-    val ki = wire[KamonInitializer]
     new HelloApplication(context) with LagomDevModeComponents
   }
 
@@ -31,7 +29,7 @@ class HelloLoader extends LagomApplicationLoader {
 }
 
 abstract class HelloApplication(context: LagomApplicationContext)
-  extends MyLagomApplication(context)
+  extends LagomApplication(context)
     with CassandraPersistenceComponents
     with LagomKafkaComponents
     with AhcWSComponents {
@@ -50,23 +48,4 @@ abstract class HelloApplication(context: LagomApplicationContext)
     )
   )
 
-}
-
-abstract class MyLagomApplication(context: LagomApplicationContext) extends LagomApplication(context) with KamonModule
-
-case class KamonInit()
-object KamonInit {
-  def apply(s: String): KamonInit = {
-    Kamon.init()
-    new KamonInit()
-  }
-}
-
-@Singleton
-class KamonInitializer {
-  val kamonInit = KamonInit("test")
-}
-
-trait KamonModule {
-  val kamonInit = wire[KamonInitializer]
 }

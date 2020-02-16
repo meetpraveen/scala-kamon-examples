@@ -28,7 +28,7 @@ object QuickstartServer extends App with CustomerRoutes with TrackingDirectives 
   //#server-bootstrapping
   implicit val system: ActorSystem = ActorSystem("helloAkkaHttpServer")
   implicit val materializer: ActorMaterializer = ActorMaterializer()
-  implicit val executionContext: ExecutionContext = system.dispatcher//MDCPropagatingExecutionContextWrapper(system.dispatcher)
+  implicit val executionContext: ExecutionContext = system.dispatcher //MDCPropagatingExecutionContextWrapper(system.dispatcher)
   //#server-bootstrapping
 
   // Starting up embedded cassandra

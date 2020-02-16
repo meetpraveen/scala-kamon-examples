@@ -14,6 +14,8 @@ metadata:
 subjects:
 # Note the `name` line below. The first default refers to the namespace. The second refers to the service account name.
 # For instance, `name: system:serviceaccount:myns:default` would refer to the default service account in namespace `myns`
+- kind: ServiceAccount
+  name: default
 - kind: User
   name: system:serviceaccount:default:default
 roleRef:

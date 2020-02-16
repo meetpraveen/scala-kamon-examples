@@ -2,21 +2,23 @@ package com.meetpraveen.metrics
 
 import com.meetpraveen.log.LogContext
 import kamon.Kamon
-import kamon.metric.{MeasurementUnit, Timer}
-import kamon.tag.{Tag, TagSet}
+import kamon.metric.{ MeasurementUnit, Timer }
+import kamon.tag.{ Tag, TagSet }
 
 import scala.concurrent.Future
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 import Monitoring.Constants._
+import scala.language.implicitConversions
 
-/** All monitoring functions with encapsulation of kamon specific steps.
+/**
+ * All monitoring functions with encapsulation of kamon specific steps.
  *
  * @author psinha
  */
 trait KamonMonitoring extends Monitoring {
   this: LogContext =>
 
-  import KamonConstants.{Exceptions, Implicits, TagSets}, Implicits._, TagSets._
+  import KamonConstants.{ Exceptions, Implicits, TagSets }, Implicits._, TagSets._
   import scala.concurrent.ExecutionContext.Implicits.global
 
   override def timer[T](name: String, tags: Map[String, Any] = Map.empty)(f: => T): T = {
@@ -32,12 +34,11 @@ trait KamonMonitoring extends Monitoring {
   }
 
   private def handleTry[T]: PartialFunction[(Try[T], String, Timer.Started), Unit] = {
-    case (Success(_), _, timerStarted) => timerStarted.withTags(Success).stop()
+    case (Success(_), _, timerStarted) => timerStarted.withTags(SuccessTag).stop()
     case (Failure(exception), name, timerStarted) =>
-      timerStarted.withTags(Failure).stop()
+      timerStarted.withTags(FailureTag).stop()
       Exceptions.handle(this)(name, exception)
   }
-
 
   override def counter(name: String, ops: CounterOps, unit: MeasurementUnit, tags: Map[String, Any] = Map.empty): Unit = {
     ops match {
@@ -68,18 +69,16 @@ object KamonConstants {
 
   object TagSets {
     val StatusTagKey = "status"
-    val Failure: TagSet = TagSet.of(StatusTagKey, "failure")
-    val Success: TagSet = TagSet.of(StatusTagKey, "success")
+    val FailureTag: TagSet = TagSet.of(StatusTagKey, "failure")
+    val SuccessTag: TagSet = TagSet.of(StatusTagKey, "success")
   }
 
   object Implicits {
-    implicit def toScalaMap(tagSet: TagSet): Map[String, Any] = tagSet.all().collect {
-      case stringPair: Tag.Pair[String] => stringPair.key -> stringPair.value
-      case longPair: Tag.Pair[Long] => longPair.key -> longPair.value
-      case boolPair: Tag.Pair[Boolean] => boolPair.key -> boolPair.value
-    }.toList.toMap
+    implicit def toScalaMap(tagSet: TagSet): Map[String, Any] =
+      tagSet.all().map(tag => tag.key -> Tag.unwrapValue(tag)).toMap
 
     implicit def toTagSet(map: Map[String, Any]): TagSet = TagSet.from(map)
   }
 
 }
+

@@ -3,10 +3,10 @@ package com.meetpraveen.log
 import java.util.UUID
 
 import kamon.Kamon
-import kamon.trace.{Identifier, SpanBuilder, Tracer}
+import kamon.trace.{ Identifier, SpanBuilder, Tracer }
 import kamon.context.Context
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
 class CorrelationIdScheme extends Identifier.Scheme(UUIDIdentifier, Identifier.Factory.EightBytesIdentifier)
 
