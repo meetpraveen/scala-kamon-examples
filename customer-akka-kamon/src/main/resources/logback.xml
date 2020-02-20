@@ -21,6 +21,7 @@
     </appender>
 
     <logger name="com.meetpraveen" level="DEBUG" />
+    <logger name="kamon" level="DEBUG" />
 
     <root level="ERROR">
         <appender-ref ref="ASYNCSTDOUT" />
